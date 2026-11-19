@@ -1,0 +1,28 @@
+name: Build unsigned IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build app
+        run: |
+          mkdir -p build/unsigned/Payload
+          cp -R build/unsigned/InAppMacro.app build/unsigned/Payload/ 2>/dev/null || true
+
+      - name: Create unsigned package placeholder
+        run: |
+          cd build/unsigned
+          ditto -c -k --sequesterRsrc --keepParent Payload Payload.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: InAppMacro-unsigned
+          path: build/unsigned/Payload.zip
